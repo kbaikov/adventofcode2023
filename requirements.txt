@@ -1,0 +1,10 @@
+-e utils
+
+# networkx
+# matplotlib
+
+
+# testing, linting, formatting
+pytest
+mypy
+ruff
