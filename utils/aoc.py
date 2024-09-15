@@ -85,14 +85,15 @@ def _post_answer(year: int, day: int, part: int, answer: str) -> str:
 def submit_solution() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--part", type=int, required=True)
+    parser.add_argument("--day", type=int, required=True)
     args = parser.parse_args()
 
-    year, day = get_year()
+    year = get_year()
     answer = sys.stdin.read()
 
     print(f"answer: {answer}")
 
-    contents = _post_answer(year, day, args.part, answer)
+    contents = _post_answer(year, args.day, args.part, answer)
 
     for error_regex in (WRONG, TOO_QUICK, ALREADY_DONE):
         error_match = error_regex.search(contents)
