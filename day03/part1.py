@@ -1,30 +1,137 @@
+"""taken from https://github.com/nedbat/adventofcode2023/blob/main/day03.py
+and https://www.giulianopertile.com/blog/the-definitive-guide-to-graph-problems/"""
+
 import argparse
+import re
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 
-INPUT_TXT = Path("input.txt")
+INPUT_TXT = Path("day03/input.txt")
 
 
-def get_adjacent_cells(x_coord, y_coord):
-    result = {}
-    for x, y in [
-        (x_coord + i, y_coord + j) for i in (-1, 0, 1) for j in (-1, 0, 1) if i != 0 or j != 0
-    ]:
-        if (x, y) in grid.cells:
-            result[(x, y)] = grid.cells[(x, y)]
+DOT = "."
+NUMBERS = "0123456789"
+
+
+@dataclass
+class Number:
+    x: int
+    y: int
+    ndigits: int
+    num: int
+
+    def neighboring_locations(self):
+        x0 = self.x - 1
+        x1 = self.x + self.ndigits
+        return {
+            *[(xx, self.y - 1) for xx in range(x0, x1 + 1)],
+            (x0, self.y),
+            (x1, self.y),
+            *[(xx, self.y + 1) for xx in range(x0, x1 + 1)],
+        }
+
+
+def test_neighboring_locations():
+    assert Number(3, 4, 3, 123).neighboring_locations() == {
+        (2, 3),
+        (3, 3),
+        (4, 3),
+        (5, 3),
+        (6, 3),
+        (2, 4),
+        (6, 4),
+        (2, 5),
+        (3, 5),
+        (4, 5),
+        (5, 5),
+        (6, 5),
+    }
+
+
+def find_numbers(lines):
+    for lineno, line in enumerate(lines):
+        for match in re.finditer(r"\d+", line):
+            yield Number(match.start(), lineno, len(match[0]), int(match[0]))
+
+
+def find_symbols(lines):
+    for lineno, line in enumerate(lines):
+        for match in re.finditer(r"[^.\d\s]", line):
+            yield (match.start(), lineno, match[0])
+
+
+def number_count(grid: list[str]) -> int:
+    visited = set()
+    numbers = []
+    buffer = {}
+    # With this nested for loop, we iterate through our grid
+    for row in range(len(grid)):
+        for col in range(len(grid[0])):
+            # We continue if the cell is a dot
+            if grid[row][col] == DOT:
+                continue
+            # we also continue if the cell has been visited
+            if (row, col) in visited:
+                continue
+            # If we reach this line, it means that we found a number,
+            # our next step is to keep exploring this number,
+            # and mark of its adjancent cells as visited, so we can
+            # skip them in the next iteration of the foor loop
+            if valid_number := parse_number(grid, row, col, visited):
+                numbers.append(valid_number)
+
+    return sum(numbers)
+
+
+def parse_number(grid, row, col, visited):
+    parsed_number = ""
+    queue = [(row, col)]
+    while len(queue) > 0:
+        row, col = queue.pop(0)
+        # We check if the node has been visited,
+        # if so we skip it.
+        if (row, col) in visited:
+            continue
+        # We mark the node as visited, and check if
+        # the current node is a dot, if so we skip it.
+        visited.add((row, col))
+        if grid[row][col] == DOT:
+            continue
+        if grid[row][col] not in NUMBERS:
+            continue
+        parsed_number += grid[row][col]
+        # We get the neighboring nodes of
+        # the current node, and then add them to the queue.
+        neighbors = get_neigbors(grid, row, col)
+        for neighbor in neighbors:
+            queue.append(neighbor)
+    return int(parsed_number) if parsed_number else None
+
+
+def get_neigbors(grid: list[str], row: int, col: int) -> list[tuple[int, int]]:
+    # We get the nodes around the current node.
+    neighbors = []
+    # Up
+    if row - 1 >= 0:
+        neighbors.append((row - 1, col))
+    # Down
+    if row + 1 < len(grid):
+        neighbors.append((row + 1, col))
+    # Left
+    if col - 1 >= 0:
+        neighbors.append((row, col - 1))
+    # Right
+    if col + 1 < len(grid[0]):
+        neighbors.append((row, col + 1))
+
+    return neighbors
 
 
 def compute(s: str) -> int:
-    numbers = s.split(" ")
-    for n in numbers:
-        pass
-
-    lines = s.splitlines()
-    for line in lines:
-        pass
-    # TODO: implement solution here!
-    return 0
+    grid = s.splitlines()
+    return number_count(grid)
 
 
 INPUT_S = """\
@@ -61,5 +168,17 @@ def main() -> int:
     return 0
 
 
+def part1(lines):
+    numbers = list(find_numbers(lines))
+    symbols = list(find_symbols(lines))
+    symbol_spots = {(x, y) for x, y, s in symbols}
+    part_numbers = []
+    for num in numbers:
+        if num.neighboring_locations() & symbol_spots:
+            part_numbers.append(num)
+    return sum(pnum.num for pnum in part_numbers)
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # raise SystemExit(main())
+    print(part1(INPUT_TXT.read_text().splitlines()))
