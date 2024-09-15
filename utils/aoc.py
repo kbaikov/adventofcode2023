@@ -25,28 +25,31 @@ def get_input(year: int, day: int) -> str:
     return urllib.request.urlopen(req).read().decode()
 
 
-def get_year_day() -> tuple[int, int]:
+def get_year() -> int:
     """Get (year, day) based on the current working dir
 
     Substituted os.path with pathlib.Path according to this table:
     https://docs.python.org/3/library/pathlib.html#correspondence-to-tools-in-the-os-module
     """
     cwd = Path.cwd()
-    day_s = Path(cwd).name
-    year_s = Path(Path(cwd).parent).name
+    year_s = Path(Path(cwd)).name
 
-    if not day_s.startswith("day") or not year_s.startswith("adventofcode"):
+    if not year_s.startswith("adventofcode"):
         raise AssertionError(f"unexpected working dir: {cwd}")
 
-    return int(year_s[len("adventofcode") :]), int(day_s[len("day") :])
+    return int(year_s[len("adventofcode") :])
 
 
 def download_input() -> int:
-    year, day = get_year_day()
+    year = get_year()
 
-    s = get_input(year, day)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--day", type=int, required=True)
+    args = parser.parse_args()
 
-    Path("input.txt").write_text(s)
+    s = get_input(year, args.day)
+
+    Path(f"day{args.day:02}_input.txt").write_text(s)
 
     lines = s.splitlines()
     if len(lines) > 10:
@@ -84,7 +87,7 @@ def submit_solution() -> int:
     parser.add_argument("--part", type=int, required=True)
     args = parser.parse_args()
 
-    year, day = get_year_day()
+    year, day = get_year()
     answer = sys.stdin.read()
 
     print(f"answer: {answer}")
