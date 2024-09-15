@@ -6,7 +6,6 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-import pytest
 
 INPUT_TXT = Path("day03/input.txt")
 
@@ -149,14 +148,6 @@ INPUT_S = """\
 EXPECTED = 4361
 
 
-@pytest.mark.parametrize(
-    ("input_s", "expected"),
-    ((INPUT_S, EXPECTED),),
-)
-def test(input_s: str, expected: int) -> None:
-    assert compute(input_s) == expected
-
-
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("data_file", nargs="?", default=INPUT_TXT)
@@ -179,6 +170,31 @@ def part1(lines):
     return sum(pnum.num for pnum in part_numbers)
 
 
+def gears(lines):
+    """from https://github.com/nedbat/adventofcode2023/blob/main/day03.py"""
+    numbers = list(find_numbers(lines))
+    stars = [(x, y) for x, y, s in find_symbols(lines) if s == "*"]
+    for star in stars:
+        adjacent_nums = []
+        possible_rows = {star[1] - 1, star[1], star[1] + 1}
+        for num in numbers:
+            if num.y not in possible_rows:
+                continue
+            if star in num.neighboring_locations():
+                adjacent_nums.append(num)
+        if len(adjacent_nums) == 2:
+            yield tuple(anum.num for anum in adjacent_nums)
+
+
+def test_gears():
+    assert list(gears(INPUT_S.splitlines())) == [(467, 35), (755, 598)]
+
+
+def part2(lines):
+    return sum(g1 * g2 for g1, g2 in gears(lines))
+
+
 if __name__ == "__main__":
     # raise SystemExit(main())
-    print(part1(INPUT_TXT.read_text().splitlines()))
+    print(part2(INPUT_TXT.read_text().splitlines()))
+    # print(part2(INPUT_S.splitlines()))
