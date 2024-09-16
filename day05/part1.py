@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-INPUT_TXT = Path("input.txt")
+INPUT_TXT = Path("day05/input.txt")
 
 
 def source_to_destination_list(value: int, destinations: list[range], sources: list[range]) -> int:
