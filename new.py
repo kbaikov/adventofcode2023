@@ -5,10 +5,10 @@ from pathlib import Path
 from dataclasses import dataclass
 
 TEST_INPUT = """\
-""".splitlines()
+"""
 
 
-# def part1(lines):
+# def part1(text: str)-> int:
 #     ...
 #
 #
@@ -21,7 +21,7 @@ TEST_INPUT = """\
 #     print(f"Part 1: {answer = }")
 
 
-# def part2(lines):
+# def part2(text: str)-> int:
 #     ...
 #
 #
