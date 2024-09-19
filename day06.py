@@ -45,17 +45,29 @@ def test_part1():
 if __name__ == "__main__":
     answer = part1(pathlib.Path("day06_input.txt").read_text())
     # print(f"Part 1: {answer = }")
-    print(answer)
+    # print(answer)
 
 
-def part2(text: str) -> int: ...
+def parse_table_part2(text):
+    records = []
+    for line in text.splitlines():
+        _, _, t = line.partition(":")
+        records.append(t.split())
+    r = Race(int("".join(records[0])), int("".join(records[1])))
+    r.populate_best_times()
+    return r
 
 
-def test_part1():
-    assert part1(TEST_INPUT) == 288
+def part2(text: str) -> int:
+    race = parse_table_part2(text)
+    return race.ways_to_win
+
+
+def test_part2():
+    assert part2(TEST_INPUT) == 71503
 
 
 if __name__ == "__main__":
-    answer = part1(pathlib.Path("day06_input.txt").read_text())
-    # print(f"Part 1: {answer = }")
+    answer = part2(pathlib.Path("day06_input.txt").read_text())
+    # print(f"Part 2: {answer = }")
     print(answer)
