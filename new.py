@@ -7,7 +7,7 @@ from dataclasses import dataclass
 TEST_INPUT = """\
 """
 
-FILE = pathlib.Path("dayX_input.txt").read_text().splitlines()
+FILE = pathlib.Path("dayX_input.txt").read_text()
 
 
 def parse_table(text: str) -> list[tuple[str, int]]:
