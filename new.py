@@ -1,11 +1,21 @@
 """based on https://github.com/nedbat/adventofcode2023/blob/main/new.py"""
 
 import re
-from pathlib import Path
+import pathlib
 from dataclasses import dataclass
 
 TEST_INPUT = """\
 """
+
+FILE = pathlib.Path("dayX_input.txt").read_text().splitlines()
+
+
+def parse_table(text: str) -> list[tuple[str, int]]:
+    entries: list[tuple[str, int]] = []
+    for line in text.splitlines():
+        card, bid = line.split()
+        entries.append((card, int(bid)))
+    return entries
 
 
 # def part1(text: str)-> int:
@@ -17,8 +27,8 @@ TEST_INPUT = """\
 #
 #
 # if __name__ == "__main__":
-#     answer = part1(file_lines("dayX_input.txt"))
-#     print(f"Part 1: {answer = }")
+#     answer = part1(FILE)
+#     print(answer)
 
 
 # def part2(text: str)-> int:
@@ -31,5 +41,5 @@ TEST_INPUT = """\
 #
 #
 # if __name__ == "__main__":
-#     answer = part2(Path("dayX_input.txt").read_text().splitlines())
-#     print(f"Part 2: {answer = }")
+#     answer = part2(FILE)
+#     print(answer)
