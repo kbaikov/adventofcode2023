@@ -1,6 +1,7 @@
-import re
-from dataclasses import dataclass
 import pathlib
+import re
+from collections import Counter
+from dataclasses import dataclass
 
 TEST_INPUT = """\
 32T3K 765
@@ -80,18 +81,40 @@ def test_part1():
 if __name__ == "__main__":
     # answer = part1(TEST_INPUT)
     answer = part1(pathlib.Path("day07_input.txt").read_text())
+    # print(answer)
+
+
+ranks2 = list("J") + [str(n) for n in range(2, 10)] + list("TQKA")
+
+
+def hand_type(hand) -> list[int]:
+    return sorted(Counter(hand).values(), reverse=True)
+
+
+def calculate_type_with_joker(hand: str) -> list[int]:
+    hands = {hand.replace("J", c) for c in hand}
+    best_type = max(map(hand_type, hands))
+    return best_type
+
+
+def part2(text: str) -> int:
+    cards = parse_table(text)
+    cards_with_rank = [(c, bid, calculate_type_with_joker(c)) for (c, bid) in cards]
+    # sort hands according to ranks
+    cards_with_rank.sort(key=lambda x: [ranks2.index(i) for i in x[0]])
+    # sort by calculated type
+    cards_with_rank.sort(key=lambda x: (x[2]))
+
+    return sum(i * entry[1] for i, entry in enumerate(cards_with_rank, start=1))
+
+
+def test_part2():
+    assert part2(TEST_INPUT) == 5905
+
+
+if __name__ == "__main__":
+    # from https://github.com/norvig/pytudes/blob/main/ipynb/Advent-2023.ipynb
+
+    # answer = part2(TEST_INPUT)
+    answer = part2(pathlib.Path("day07_input.txt").read_text())
     print(answer)
-
-
-# def part2(text: str)-> int:
-#     ...
-#
-#
-# def test_part2():
-#     assert part2(TEST_INPUT) == 123456
-#
-#
-#
-# if __name__ == "__main__":
-#     answer = part2(Path("dayX_input.txt").read_text().splitlines())
-#     print(f"Part 2: {answer = }")
