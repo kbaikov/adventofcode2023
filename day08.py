@@ -1,3 +1,4 @@
+import math
 import pathlib
 import re
 from itertools import cycle
@@ -28,7 +29,7 @@ def traverse_graph(graph: Graph, path: str, start="AAA", end="ZZZ") -> int:
     steps_taken = 0
     path_to_travel = cycle(path)
     current_node = start
-    while current_node != end:
+    while not current_node.endswith(end):
         next_direction = next(path_to_travel)
         steps_taken += 1
         current_node = graph[current_node][0] if next_direction == "L" else graph[current_node][1]
@@ -46,20 +47,27 @@ def test_part1():
 
 
 if __name__ == "__main__":
+    pass
     # answer = part1(TEST_INPUT)
-    answer = part1(FILE)
+    # answer = part1(FILE)
+    # print(answer)
+
+
+def part2(text: str) -> int:
+    """from https://github.com/norvig/pytudes/blob/main/ipynb/Advent-2023.ipynb"""
+    path, graph = parse_table(text)
+    start_nodes = [node for node in graph if node.endswith("A")]
+    node_steps = [traverse_graph(graph, path, start=node, end="Z") for node in start_nodes]
+    [n % len(path) for n in node_steps]
+
+    return math.lcm(*node_steps)
+
+
+def test_part2():
+    assert part2(TEST_INPUT) == 6
+
+
+if __name__ == "__main__":
+    answer = part2(FILE)
+    # answer = part2(TEST_INPUT)
     print(answer)
-
-
-# def part2(text: str)-> int:
-#     ...
-#
-#
-# def test_part2():
-#     assert part2(TEST_INPUT) == 123456
-#
-#
-#
-# if __name__ == "__main__":
-#     answer = part2(FILE)
-#     print(answer)
